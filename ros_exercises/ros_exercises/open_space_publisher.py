@@ -11,9 +11,15 @@ import math
 class OpenSpacePublisher(Node):
     def __init__(self):
         super().__init__('open_space_publisher')
-        self.sub = self.create_subscription(LaserScan, 'fake_scan', self.listen, 10)
-        
-        self.publisher_ = self.create_publisher(OpenSpace, 'open_space', 10)
+        self.declare_parameter("subscriber_topic", "fake_scan")
+        self.declare_parameter("publisher_topic", "open_scan")
+
+        self.subscription = self.create_subscription(
+                LaserScan,
+                self.get_parameter("subscriber_topic").value,
+                self.listen, 10
+                )
+        self.publisher_ = self.create_publisher(OpenSpace, self.get_parameter("publisher_topic").value, 10)
 
     def listen(self, scan: LaserScan):
         max_distance = max(scan.ranges)
